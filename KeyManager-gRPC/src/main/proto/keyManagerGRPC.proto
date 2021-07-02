@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.zup.ot5";
+option java_outer_classname = "KeyManagerGRPC";
+
+
+package br.com.zup.ot5;
+
+service KeyManagerGRPCService {
+  rpc criaChavePix (CriaChavePixRequest) returns (CriaChavePixResponse) {}
+}
+
+message CriaChavePixRequest {
+
+  enum TipoChave{
+    TIPO_CHAVE_DESCONHECIDO = 0;
+    CPF = 1;
+    TELEFONE_CELULAR = 2;
+    EMAIL = 3;
+    ALEATORIA = 4;
+  }
+
+  enum TipoConta{
+    TIPO_CONTA_DESCONHECIDO = 0;
+    CONTA_CORRENTE = 1;
+    CONTA_POUPANCA = 2;
+  }
+
+  string idTitular = 1;
+  TipoChave tipoChave = 2;
+  TipoConta tipoConta = 3;
+  string valorChave = 4;
+}
+
+message CriaChavePixResponse {
+  string idTitular = 1;
+  string pixId = 2;
+}
