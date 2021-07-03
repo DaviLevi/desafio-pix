@@ -59,14 +59,6 @@ class KeyManagerGRPCTest(
 //
 //    }
 
-    @Factory
-    class Clients {
 
-        @Singleton
-        fun carroGrpcClient(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel)
-                : KeyManagerGRPCServiceGrpc.KeyManagerGRPCServiceBlockingStub{
-            return KeyManagerGRPCServiceGrpc.newBlockingStub(channel)
-        }
-    }
 
 }

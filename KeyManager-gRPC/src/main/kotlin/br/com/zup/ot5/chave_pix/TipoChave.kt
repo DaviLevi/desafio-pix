@@ -1,6 +1,6 @@
 package br.com.zup.ot5.chave_pix
 
-import io.micronaut.validation.validator.constraints.EmailValidator
+import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator
 import org.hibernate.validator.internal.constraintvalidators.hv.br.CPFValidator
 
 enum class TipoChave {
@@ -28,7 +28,9 @@ enum class TipoChave {
     },
     EMAIL {
         override fun valida(chave: String?): Boolean {
-            if(chave.isNullOrBlank()) return false
+            if(chave.isNullOrBlank()){
+                return false
+            }
             return EmailValidator().run {
                 initialize(null)
                 isValid(chave, null)

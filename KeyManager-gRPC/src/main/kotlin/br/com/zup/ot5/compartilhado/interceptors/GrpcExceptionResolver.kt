@@ -13,7 +13,7 @@ class GrpcExceptionResolver(
     private var defaultHandler: CustomExceptionHandler<Exception> = DefaultCustomExceptionHandler()
 
 
-    constructor(handlers: List<CustomExceptionHandler<Exception>>, defaultHandler: CustomExceptionHandler<Exception>) : this(handlers) {
+    constructor(handlers: List<CustomExceptionHandler<*>>, defaultHandler: CustomExceptionHandler<Exception>) : this(handlers) {
         this.defaultHandler = defaultHandler
     }
 
