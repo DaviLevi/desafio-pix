@@ -8,9 +8,5 @@ fun main(args: Array<String>) {
 		.packages("br.com.zup.ot5")
 		.start()
 
-
-
-
-
 }
 

@@ -15,8 +15,13 @@ class ChavePix(
     @field:NotEmpty val chave: String,
     @field:NotNull @field:Valid val conta: Conta
 ){
+
     @Id
     @GeneratedValue
     lateinit var id: UUID
+
+    fun naoPertenceAoTitular(outroIdTitular: UUID) : Boolean{
+        return idTitular != outroIdTitular
+    }
 
 }

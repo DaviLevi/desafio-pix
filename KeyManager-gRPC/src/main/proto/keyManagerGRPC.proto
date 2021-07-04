@@ -9,6 +9,7 @@ package br.com.zup.ot5;
 
 service KeyManagerGRPCService {
   rpc criaChavePix (CriaChavePixRequest) returns (CriaChavePixResponse) {}
+  rpc excluiChavePix (ExcluiChavePixRequest) returns (ExcluiChavePixResponse) {}
 }
 
 message CriaChavePixRequest {
@@ -37,3 +38,12 @@ message CriaChavePixResponse {
   string idTitular = 1;
   string pixId = 2;
 }
+
+
+
+message ExcluiChavePixRequest {
+  string idTitular = 1;
+  string pixId = 2;
+}
+
+message ExcluiChavePixResponse{}
