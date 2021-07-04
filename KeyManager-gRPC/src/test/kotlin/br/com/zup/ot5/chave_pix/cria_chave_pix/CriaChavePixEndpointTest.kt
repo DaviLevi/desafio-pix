@@ -1,11 +1,10 @@
-package br.com.zup.ot5.cria_chave_pix
+package br.com.zup.ot5.chave_pix.cria_chave_pix
 
 import br.com.zup.ot5.CriaChavePixRequest
 import br.com.zup.ot5.KeyManagerGRPCServiceGrpc
 import br.com.zup.ot5.chave_pix.ChavePix
 import br.com.zup.ot5.chave_pix.ChavePixRepository
 import br.com.zup.ot5.chave_pix.TipoChave
-import br.com.zup.ot5.compartilhado.model.Conta
 import br.com.zup.ot5.integracoes.sistema_erp_itau.*
 import io.grpc.ManagedChannel
 import io.grpc.Status
@@ -24,12 +23,6 @@ import org.mockito.Mockito.`when`
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.validation.ConstraintViolationException
-import javax.validation.Valid
-import javax.validation.constraints.NotEmpty
-import javax.validation.constraints.NotNull
 
 
 @MicronautTest(transactional = false)

@@ -1,4 +1,4 @@
-package br.com.zup.ot5.cria_chave_pix
+package br.com.zup.ot5.chave_pix.cria_chave_pix
 
 import br.com.zup.ot5.chave_pix.TipoChave
 import org.junit.jupiter.api.Assertions
