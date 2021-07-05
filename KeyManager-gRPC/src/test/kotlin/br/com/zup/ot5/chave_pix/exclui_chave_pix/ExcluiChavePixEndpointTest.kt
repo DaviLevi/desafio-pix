@@ -5,21 +5,27 @@ import br.com.zup.ot5.KeyManagerExcluiServiceGrpc
 import br.com.zup.ot5.chave_pix.ChavePix
 import br.com.zup.ot5.chave_pix.ChavePixRepository
 import br.com.zup.ot5.chave_pix.TipoChave
-import br.com.zup.ot5.chave_pix.cria_chave_pix.CriaChavePixEndpointTest
 import br.com.zup.ot5.integracoes.sistema_erp_itau.ContaResponse
 import br.com.zup.ot5.integracoes.sistema_erp_itau.InstituicaoResponse
 import br.com.zup.ot5.integracoes.sistema_erp_itau.TipoContaResponse
 import br.com.zup.ot5.integracoes.sistema_erp_itau.TitularResponse
+import br.com.zup.ot5.integracoes.sistema_pix_bcb.*
 import io.grpc.ManagedChannel
 import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
+import io.micronaut.http.HttpResponse
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito
+import org.mockito.Mockito.`when`
+import java.time.LocalDateTime
 import java.util.*
+import javax.inject.Inject
 import javax.inject.Singleton
 
 
@@ -29,11 +35,19 @@ class ExcluiChavePixEndpointTest(
     private val clientePixGrpc: KeyManagerExcluiServiceGrpc.KeyManagerExcluiServiceBlockingStub
 ){
 
+    @Inject
+    lateinit var bcbClient: SistemaPixBcbClient
+
     companion object {
-        val CLIENTE_ID = UUID.randomUUID()
+        val CLIENTE_ID: UUID = UUID.randomUUID()
         val CLIENTE_ID_DIVERGENTE = UUID.randomUUID()
         val PIX_ID_INEXISTENTE = UUID.randomUUID()
-        val CPF_VALIDO = "01606156233"
+        const val CPF_VALIDO = "63657520325"
+        const val INSTITUICAO_VALIDA = "ITAÚ UNIBANCO S.A."
+        const val ISBP = "60701190"
+        const val NOME_TITULAR = "Rafael Ponte"
+        const val AGENCIA = "1218"
+        const val NUMERO = "291900"
     }
 
     @BeforeEach
@@ -52,6 +66,21 @@ class ExcluiChavePixEndpointTest(
                 conta = dadosDaContaAssociadaResponse().paraConta()
             )
         )
+
+        `when`(
+            bcbClient.excluiPix(
+                key = chavePixSalva.chave,
+                request = DeletePixKeyRequest(
+                    key = chavePixSalva.chave,
+                    participant = chavePixSalva.conta.ispb
+                )
+        )).thenReturn(HttpResponse.ok(
+            DeletePixKeyResponse(
+                key = chavePixSalva.chave,
+                participant = chavePixSalva.conta.ispb,
+                deletedAt = LocalDateTime.now()
+            )
+        ))
 
         // exec
         val resposta = clientePixGrpc.excluiChavePix(
@@ -111,29 +140,34 @@ class ExcluiChavePixEndpointTest(
         Assertions.assertEquals(1, chavePixRepository.count())
     }
 
-    fun dadosDaContaAssociadaResponse() : ContaResponse{
+    private fun dadosDaContaAssociadaResponse() : ContaResponse{
         return ContaResponse(
             tipo = TipoContaResponse.CONTA_CORRENTE,
             instituicao = instituicaoContaResponse(),
-            agencia = "1218",
-            numero = "291900",
+            agencia = AGENCIA,
+            numero = NUMERO,
             titular = titularContaResponse()
         )
     }
 
-    fun instituicaoContaResponse() : InstituicaoResponse{
+    private fun instituicaoContaResponse() : InstituicaoResponse{
         return InstituicaoResponse(
-            nome = "ITAÚ UNIBANCO S.A.",
-            ispb = "60701190"
+            nome = INSTITUICAO_VALIDA,
+            ispb = ISBP
         )
     }
 
-    fun titularContaResponse() : TitularResponse{
+    private fun titularContaResponse() : TitularResponse{
         return TitularResponse(
             id = CLIENTE_ID,
-            nome = "Rafael Ponte",
-            cpf = "63657520325"
+            nome = NOME_TITULAR,
+            cpf = CPF_VALIDO
         )
+    }
+
+    @MockBean(SistemaPixBcbClient::class)
+    fun sistemaPixBcbClient() : SistemaPixBcbClient{
+        return Mockito.mock(SistemaPixBcbClient::class.java)
     }
 
     @Factory
