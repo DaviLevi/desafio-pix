@@ -2,7 +2,8 @@ package br.com.zup.ot5.integracoes.sistema_erp_itau
 
 import br.com.zup.ot5.compartilhado.model.Conta
 import br.com.zup.ot5.compartilhado.model.TipoConta
-import com.fasterxml.jackson.annotation.JsonFormat
+import br.com.zup.ot5.compartilhado.model.TitularConta
+import java.util.*
 
 enum class TipoContaResponse{
     CONTA_CORRENTE, CONTA_POUPANCA
@@ -14,7 +15,7 @@ data class InstituicaoResponse(
 )
 
 data class TitularResponse(
-    val id: String,
+    val id: UUID,
     val nome: String,
     val cpf: String
 )
@@ -32,7 +33,8 @@ data class ContaResponse(
             ispb = instituicao.ispb,
             agencia = agencia,
             numero = numero,
-            tipoConta = TipoConta.valueOf(tipo.name)
+            tipoConta = TipoConta.valueOf(tipo.name),
+            titularConta = TitularConta(idTitular = titular.id, nomeTitular = titular.nome, cpfTitular = titular.cpf)
         )
     }
 }

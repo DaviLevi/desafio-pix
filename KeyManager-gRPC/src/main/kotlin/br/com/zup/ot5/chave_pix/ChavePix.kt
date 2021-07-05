@@ -11,9 +11,8 @@ import javax.validation.constraints.NotNull
 @Entity
 class ChavePix(
     @field:NotNull @field:Enumerated(EnumType.STRING) val tipoChave: TipoChave,
-    @field:NotNull val idTitular: UUID,
-    @field:NotEmpty val chave: String,
-    @field:NotNull @field:Valid val conta: Conta
+    @field:NotEmpty var chave: String,
+    @field:NotNull @field:Valid @field:Embedded val conta: Conta
 ){
 
     @Id
@@ -21,7 +20,7 @@ class ChavePix(
     lateinit var id: UUID
 
     fun naoPertenceAoTitular(outroIdTitular: UUID) : Boolean{
-        return idTitular != outroIdTitular
+        return conta.titularConta.idTitular != outroIdTitular
     }
 
 }

@@ -1,8 +1,8 @@
 package br.com.zup.ot5.chave_pix.cria_chave
 
-import br.com.zup.ot5.CriaChavePixRequest
-import br.com.zup.ot5.CriaChavePixResponse
-import br.com.zup.ot5.KeyManagerGRPCServiceGrpc
+import br.com.zup.ot5.KeyManagerRegistraServiceGrpc
+import br.com.zup.ot5.RegistraChavePixRequest
+import br.com.zup.ot5.RegistraChavePixResponse
 import br.com.zup.ot5.chave_pix.GerenciadorChavePix
 import br.com.zup.ot5.chave_pix.TipoChave
 import br.com.zup.ot5.compartilhado.interceptors.ErrorHandler
@@ -15,31 +15,30 @@ import javax.inject.Singleton
 @ErrorHandler
 class CriaPixGrpcEndpoint(
     private val gerenciadorChavePix: GerenciadorChavePix
-) : KeyManagerGRPCServiceGrpc.KeyManagerGRPCServiceImplBase(){
+) : KeyManagerRegistraServiceGrpc.KeyManagerRegistraServiceImplBase(){
 
-
-    override fun criaChavePix(request: CriaChavePixRequest,
-                              responseObserver: StreamObserver<CriaChavePixResponse>?) {
+    override fun registra(request: RegistraChavePixRequest,
+                              responseObserver: StreamObserver<RegistraChavePixResponse>?) {
 
         val chavePixValidavel : CriaChavePixRequestValidavel = request.paraChavePixValidavel()
         val chavePixCriada = gerenciadorChavePix.criaChave(chavePixValidavel)
 
         responseObserver?.onNext(
-             CriaChavePixResponse
-                 .newBuilder()
-                    .setIdTitular(chavePixCriada.idTitular.toString())
-                    .setPixId(chavePixCriada.id.toString())
-                 .build()
+            RegistraChavePixResponse
+                .newBuilder()
+                .setIdTitular(chavePixCriada.conta.titularConta.idTitular.toString())
+                .setPixId(chavePixCriada.id.toString())
+                .build()
         )
         responseObserver?.onCompleted()
     }
 
 
-    private fun CriaChavePixRequest.paraChavePixValidavel() : CriaChavePixRequestValidavel{
-        return CriaChavePixRequestValidavel(tipoChave = if (this.tipoChave == CriaChavePixRequest.TipoChave.TIPO_CHAVE_DESCONHECIDO) null else TipoChave.valueOf(this.tipoChave.name),
+    private fun RegistraChavePixRequest.paraChavePixValidavel() : CriaChavePixRequestValidavel{
+        return CriaChavePixRequestValidavel(tipoChave = if (this.tipoChave == RegistraChavePixRequest.TipoChave.TIPO_CHAVE_DESCONHECIDO) null else TipoChave.valueOf(this.tipoChave.name),
             idTitular = this.idTitular,
             valor = this.valorChave,
-            tipoConta = if (this.tipoConta == CriaChavePixRequest.TipoConta.TIPO_CONTA_DESCONHECIDO) null else TipoConta.valueOf(this.tipoConta.name)
+            tipoConta = if (this.tipoConta == RegistraChavePixRequest.TipoConta.TIPO_CONTA_DESCONHECIDO) null else TipoConta.valueOf(this.tipoConta.name)
         )
     }
 

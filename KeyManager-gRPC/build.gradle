@@ -36,14 +36,13 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
 
+    // codecs
+    implementation("io.micronaut.xml:micronaut-jackson-xml")
 
 
     implementation("io.micronaut.beanvalidation:micronaut-hibernate-validator")
     implementation("org.hibernate:hibernate-validator:6.1.6.Final")
     implementation("javax.annotation:javax.annotation-api")
-
-    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
-
 
 
     // test
@@ -54,6 +53,7 @@ dependencies {
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("org.testcontainers:junit-jupiter")
 
+    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
 }
 
 

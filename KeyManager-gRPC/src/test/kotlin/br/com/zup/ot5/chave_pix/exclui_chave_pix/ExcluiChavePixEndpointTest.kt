@@ -1,7 +1,7 @@
 package br.com.zup.ot5.chave_pix.exclui_chave_pix
 
 import br.com.zup.ot5.ExcluiChavePixRequest
-import br.com.zup.ot5.KeyManagerGRPCServiceGrpc
+import br.com.zup.ot5.KeyManagerExcluiServiceGrpc
 import br.com.zup.ot5.chave_pix.ChavePix
 import br.com.zup.ot5.chave_pix.ChavePixRepository
 import br.com.zup.ot5.chave_pix.TipoChave
@@ -10,18 +10,23 @@ import br.com.zup.ot5.integracoes.sistema_erp_itau.ContaResponse
 import br.com.zup.ot5.integracoes.sistema_erp_itau.InstituicaoResponse
 import br.com.zup.ot5.integracoes.sistema_erp_itau.TipoContaResponse
 import br.com.zup.ot5.integracoes.sistema_erp_itau.TitularResponse
+import io.grpc.ManagedChannel
 import io.grpc.StatusRuntimeException
+import io.micronaut.context.annotation.Factory
+import io.micronaut.grpc.annotation.GrpcChannel
+import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
+import javax.inject.Singleton
 
 
 @MicronautTest(transactional = false)
 class ExcluiChavePixEndpointTest(
     private val chavePixRepository: ChavePixRepository,
-    private val clientePixGrpc: KeyManagerGRPCServiceGrpc.KeyManagerGRPCServiceBlockingStub
+    private val clientePixGrpc: KeyManagerExcluiServiceGrpc.KeyManagerExcluiServiceBlockingStub
 ){
 
     companion object {
@@ -43,7 +48,6 @@ class ExcluiChavePixEndpointTest(
         val chavePixSalva = chavePixRepository.save(
             ChavePix(
                 tipoChave = TipoChave.CPF,
-                idTitular = CLIENTE_ID,
                 chave = CPF_VALIDO,
                 conta = dadosDaContaAssociadaResponse().paraConta()
             )
@@ -64,10 +68,9 @@ class ExcluiChavePixEndpointTest(
     @Test
     fun `Nao deve excluir uma chave pix inexistente`(){
         // cenario
-        val chavePixSalva = chavePixRepository.save(
+        chavePixRepository.save(
             ChavePix(
                 tipoChave = TipoChave.CPF,
-                idTitular = CLIENTE_ID,
                 chave = CPF_VALIDO,
                 conta = dadosDaContaAssociadaResponse().paraConta()
             )
@@ -91,7 +94,6 @@ class ExcluiChavePixEndpointTest(
         val chavePixSalva = chavePixRepository.save(
             ChavePix(
                 tipoChave = TipoChave.CPF,
-                idTitular = CLIENTE_ID,
                 chave = CPF_VALIDO,
                 conta = dadosDaContaAssociadaResponse().paraConta()
             )
@@ -128,9 +130,19 @@ class ExcluiChavePixEndpointTest(
 
     fun titularContaResponse() : TitularResponse{
         return TitularResponse(
-            id = CriaChavePixEndpointTest.CLIENTE_ID.toString(),
+            id = CLIENTE_ID,
             nome = "Rafael Ponte",
             cpf = "63657520325"
         )
+    }
+
+    @Factory
+    class Clients {
+
+        @Singleton
+        fun excluiPixGrpcClient(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel)
+                : KeyManagerExcluiServiceGrpc.KeyManagerExcluiServiceBlockingStub{
+            return KeyManagerExcluiServiceGrpc.newBlockingStub(channel)
+        }
     }
 }

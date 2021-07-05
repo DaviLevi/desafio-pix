@@ -1,7 +1,7 @@
 package br.com.zup.ot5.chave_pix.cria_chave_pix
 
-import br.com.zup.ot5.CriaChavePixRequest
-import br.com.zup.ot5.KeyManagerGRPCServiceGrpc
+import br.com.zup.ot5.KeyManagerRegistraServiceGrpc
+import br.com.zup.ot5.RegistraChavePixRequest
 import br.com.zup.ot5.chave_pix.ChavePix
 import br.com.zup.ot5.chave_pix.ChavePixRepository
 import br.com.zup.ot5.chave_pix.TipoChave
@@ -28,16 +28,15 @@ import javax.inject.Singleton
 @MicronautTest(transactional = false)
 class CriaChavePixEndpointTest(
     private val chavePixRepository: ChavePixRepository,
-    private val clientePixGrpc: KeyManagerGRPCServiceGrpc.KeyManagerGRPCServiceBlockingStub
+    private val clientePixGrpc: KeyManagerRegistraServiceGrpc.KeyManagerRegistraServiceBlockingStub
 ){
 
     @Inject
-    lateinit var itauClient: SistemaERPItauClient;
+    lateinit var itauClient: SistemaERPItauClient
 
     companion object {
-        val CLIENTE_ID = UUID.randomUUID()
-        val CPF_VALIDO = "01606156233"
-        val CPF_INVALIDO = "123-bla-45633"
+        val CLIENTE_ID: UUID = UUID.randomUUID()
+        const val CPF_VALIDO = "01606156233"
     }
 
     @BeforeEach
@@ -55,7 +54,7 @@ class CriaChavePixEndpointTest(
             .thenReturn(HttpResponse.ok(dadosDaContaAssociadaResponse()))
 
         // exec
-        val chavePixCriada = clientePixGrpc.criaChavePix(
+        val chavePixCriada = clientePixGrpc.registra(
             chavePixValida
         )
 
@@ -73,7 +72,6 @@ class CriaChavePixEndpointTest(
         chavePixRepository.save(
             ChavePix(
                 tipoChave = TipoChave.CPF,
-                idTitular = CLIENTE_ID,
                 chave = CPF_VALIDO,
                 conta = dadosDaContaAssociadaResponse().paraConta()
             )
@@ -86,7 +84,7 @@ class CriaChavePixEndpointTest(
         // exec
         // validacao
         val excecao = Assertions.assertThrows(StatusRuntimeException::class.java){
-            clientePixGrpc.criaChavePix(
+            clientePixGrpc.registra(
                 chavePixDuplicada
             )
         }
@@ -103,7 +101,7 @@ class CriaChavePixEndpointTest(
         // exec
         // validacao
         val excecao = Assertions.assertThrows(StatusRuntimeException::class.java){
-            clientePixGrpc.criaChavePix(
+            clientePixGrpc.registra(
                 chavePixInvalida
             )
         }
@@ -123,7 +121,7 @@ class CriaChavePixEndpointTest(
         // exec
         // validacao
         val excecao = Assertions.assertThrows(StatusRuntimeException::class.java){
-            clientePixGrpc.criaChavePix(
+            clientePixGrpc.registra(
                 chavePixSemContaAssociada
             )
         }
@@ -143,25 +141,25 @@ class CriaChavePixEndpointTest(
 
         @Singleton
         fun chavePixGrpcClient(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel)
-                : KeyManagerGRPCServiceGrpc.KeyManagerGRPCServiceBlockingStub{
-            return KeyManagerGRPCServiceGrpc.newBlockingStub(channel)
+                : KeyManagerRegistraServiceGrpc.KeyManagerRegistraServiceBlockingStub{
+            return KeyManagerRegistraServiceGrpc.newBlockingStub(channel)
         }
     }
 
-    fun chavePixValida() : CriaChavePixRequest{
-        return CriaChavePixRequest.newBuilder()
+    private fun chavePixValida() : RegistraChavePixRequest {
+        return RegistraChavePixRequest.newBuilder()
                     .setIdTitular(CLIENTE_ID.toString())
                     .setValorChave(CPF_VALIDO)
-                    .setTipoChave(CriaChavePixRequest.TipoChave.CPF)
-                    .setTipoConta(CriaChavePixRequest.TipoConta.CONTA_CORRENTE)
+                    .setTipoChave(RegistraChavePixRequest.TipoChave.CPF)
+                    .setTipoConta(RegistraChavePixRequest.TipoConta.CONTA_CORRENTE)
                 .build()
     }
 
-    fun chavePixTotalmenteInvalida() : CriaChavePixRequest{
-        return CriaChavePixRequest.newBuilder().build()
+    private fun chavePixTotalmenteInvalida() : RegistraChavePixRequest{
+        return RegistraChavePixRequest.newBuilder().build()
     }
 
-    fun dadosDaContaAssociadaResponse() : ContaResponse{
+    private fun dadosDaContaAssociadaResponse() : ContaResponse{
         return ContaResponse(
             tipo = TipoContaResponse.CONTA_CORRENTE,
             instituicao = instituicaoContaResponse(),
@@ -171,16 +169,16 @@ class CriaChavePixEndpointTest(
         )
     }
 
-    fun instituicaoContaResponse() : InstituicaoResponse{
+    private fun instituicaoContaResponse() : InstituicaoResponse{
         return InstituicaoResponse(
             nome = "ITAÚ UNIBANCO S.A.",
             ispb = "60701190"
         )
     }
 
-    fun titularContaResponse() : TitularResponse{
+    private fun titularContaResponse() : TitularResponse{
         return TitularResponse(
-            id = CLIENTE_ID.toString(),
+            id = CLIENTE_ID,
             nome = "Rafael Ponte",
             cpf = "63657520325"
         )

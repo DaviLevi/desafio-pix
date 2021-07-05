@@ -7,12 +7,15 @@ option java_outer_classname = "KeyManagerGRPC";
 
 package br.com.zup.ot5;
 
-service KeyManagerGRPCService {
-  rpc criaChavePix (CriaChavePixRequest) returns (CriaChavePixResponse) {}
+service KeyManagerRegistraService {
+  rpc registra (RegistraChavePixRequest) returns (RegistraChavePixResponse) {}
+}
+
+service KeyManagerExcluiService {
   rpc excluiChavePix (ExcluiChavePixRequest) returns (ExcluiChavePixResponse) {}
 }
 
-message CriaChavePixRequest {
+message RegistraChavePixRequest {
 
   enum TipoChave{
     TIPO_CHAVE_DESCONHECIDO = 0;
@@ -34,12 +37,10 @@ message CriaChavePixRequest {
   string valorChave = 4;
 }
 
-message CriaChavePixResponse {
+message RegistraChavePixResponse {
   string idTitular = 1;
   string pixId = 2;
 }
-
-
 
 message ExcluiChavePixRequest {
   string idTitular = 1;
